@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLeadsList } from "@hooks/useQueries";
 import { useDashboardMetrics } from "@hooks/useQueries";
 import { useLeadSources } from "@hooks/useQueries";
-import type { LeadStatus } from "../types";
+import type { LeadStatus, Lead } from "../types";
 import {
   getInitials,
   formatCurrency,
@@ -21,6 +21,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { AddLeadModal } from "./modals/AddLeadModal";
+import { EditLeadModal } from "./modals/EditLeadModal";
 
 export function LeadsPage() {
   const [page, setPage] = useState(1);
@@ -32,6 +33,7 @@ export function LeadsPage() {
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
 
   const { data, isLoading, isError } = useLeadsList({
     page,
@@ -296,7 +298,11 @@ export function LeadsPage() {
                         {formatDate(lead.createdAt)}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                        <button
+                          onClick={() => setEditingLead(lead)}
+                          className="p-1.5 text-slate-400 hover:text-primary transition-colors"
+                          title="Edit lead"
+                        >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
@@ -417,6 +423,15 @@ export function LeadsPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
       />
+
+      {/* Edit Lead Modal */}
+      {editingLead && (
+        <EditLeadModal
+          isOpen={!!editingLead}
+          onClose={() => setEditingLead(null)}
+          lead={editingLead}
+        />
+      )}
     </div>
   );
 }
